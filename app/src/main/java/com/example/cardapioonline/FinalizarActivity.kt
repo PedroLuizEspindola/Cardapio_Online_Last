@@ -1,5 +1,6 @@
 package com.example.cardapioonline
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -40,14 +41,21 @@ class FinalizarActivity : AppCompatActivity() {
         // Configura o botão para enviar o pedido
         binding.buttonFinalize.setOnClickListener {
             if (totalSum > 0) {
-                // Salva os pedidos no banco de dados
                 if (foodNames != null && foodQuantities != null) {
-                    for (i in foodNames.indices) {
-                        dbHelper.insertOrder(foodNames[i], foodQuantities[i], totalValues?.get(i)?.toDouble() ?: 0.0)
-                    }
+                    val foodNamesStr = foodNames.joinToString(",")
+                    val foodQuantitiesStr = foodQuantities.joinToString(",")
+
+                    // Salva os pedidos no banco de dados com o valor total
+                    dbHelper.insertOrder(foodNamesStr, foodQuantitiesStr, totalSum.toDouble())
                 }
                 // Exibe um Toast com a mensagem de sucesso
                 Toast.makeText(this, "Pedido feito com sucesso", Toast.LENGTH_SHORT).show()
+
+                // Navega de volta para MainActivity
+                val intent = Intent(this, MainActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
+                finish()  // Encerra a FinalizarActivity
             } else {
                 // Exibe um Toast informando que o pedido não pode ser feito
                 Toast.makeText(this, "O pedido não pode ser feito porque nada foi adicionado ao carrinho", Toast.LENGTH_SHORT).show()
